@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Mental Health in Tech</title>
+</head>
+<body>
+    <div class="chart">TEST</div>
+
+    <svg width="8000" height="800"></svg>
+
+    <!-- script -->
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script src="https://d3js.org/d3-fetch.v1.min.js"></script>
+
+    <script>
+        //let chart = d3.select(".chart");
+        let svg = d3.select("svg");
+        d3.csv("survey.csv").then(function(data) {
+            console.log(data);
+            //chart.html(data);
+            let sortedData = data.sort(function(a,b) { // sort data by Age
+                //console.log(a.Age + " | " + b.Age + " | " + (a.Age - b.Age));
+                return a.Age - b.Age;
+            })
+            let gridSize = 20;
+            let currentRow = 0;
+            for (let i = 0; i < data.length; i++) {
+                if (i % gridSize === 0) {
+                    currentRow += gridSize;
+                }
+                svg.append("circle")
+                .attr("cy", ((i % gridSize) * gridSize) + gridSize)
+                .attr("cx", currentRow)
+                .attr("r", fixAge(sortedData[i].Age, i) * 0.1)
+                .attr("style", "fill:" + colorCircle(sortedData[i].coworkers))
+                .style("stroke", borderCircle(sortedData[i].family_history))
+                .style("stroke-width", 2);
+                //console.log(data[i].Age);
+            }
+        });
+        function borderCircle (familyHistoryInput) {
+            if (familyHistoryInput === "No") {
+                return "yellow";
+            }
+            else if (familyHistoryInput === "Yes") {
+                return "purple";
+            }
+            else {
+                return "magenta"
+            }
+        }
+        function colorCircle (coworkersInput) {
+            if (coworkersInput === "Some of them") {
+                return "orange";
+            }
+            else if (coworkersInput === "No") {
+                return "red";
+            }
+            else if (coworkersInput === "Yes") {
+                return "green";
+            }
+            else {
+                return "magenta";
+            }
+        }
+        function fixAge (ageInput, index) {
+            if (ageInput > 100) {
+                console.log("WOW: " + index);
+            }
+            else if (ageInput < 1) {
+                console.log("OMG: " + index);
+            }
+            return Math.min(Math.max(1, parseInt(ageInput)), 100);
+        }
+    </script>
+</body>
+</html>
